@@ -1,7 +1,7 @@
-type MySetType<T> = Record<string | symbol | number, T>
+type MySetType<T> = Record<string | symbol | number, T>;
 
 export default class MySet<T = unknown> {
-    private set: MySetType<T> = {} as MySetType<T>
+    private set: MySetType<T> = {} as MySetType<T>;
 
     constructor(initialValue?: T) {
         if (!initialValue) return;
@@ -54,44 +54,6 @@ export default class MySet<T = unknown> {
         }
     }
 
-    entries(): IterableIterator<[string, T]> {
-        const setEntries = Object.entries(this.set);
-        let index = -1;
-
-        return {
-            [Symbol.iterator]() {
-                return this;
-            },
-
-            next() {
-                index += 1;
-                return {
-                    done: index === setEntries.length,
-                    value: setEntries[index]
-                };
-            }
-        };
-    }
-
-    keys(): IterableIterator<string> {
-        const keys = Object.getOwnPropertyNames(this.set);
-        let index = -1;
-
-        return {
-            [Symbol.iterator]() {
-                return this;
-            },
-
-            next() {
-                index += 1;
-                return {
-                    done: index === keys.length,
-                    value: keys[index]
-                };
-            }
-        };
-    }
-
     values(): IterableIterator<T> {
         const set = this.set;
         const keys = Object.getOwnPropertyNames(set);
@@ -107,6 +69,31 @@ export default class MySet<T = unknown> {
                 return {
                     done: index === keys.length,
                     value: set[keys[index]]
+                };
+            }
+        };
+    }
+
+    keys(): IterableIterator<T> {
+        return this.values();
+    }
+
+    entries(): IterableIterator<[T, T]> {
+        const set = this.set;
+        const keys = Object.getOwnPropertyNames(set);
+        let index = -1;
+
+        return {
+            [Symbol.iterator]() {
+                return this;
+            },
+
+            next() {
+                index += 1;
+                const value = set[keys[index]];
+                return {
+                    done: index === keys.length,
+                    value: [value, value]
                 };
             }
         };
