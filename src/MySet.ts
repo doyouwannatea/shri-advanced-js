@@ -46,10 +46,15 @@ export default class MySet<T = unknown> {
         return value === this.set[key];
     }
 
-    forEach(callbackfn: (key: T, value: T, set: MySetType<T>) => void, thisArg?: unknown): void {
+    forEach(callbackfn: (key: T, value: T, set: MySetType<T>) => void, thisArg: unknown = this): void {
         for (const key in this.set) {
             if (Object.prototype.hasOwnProperty.call(this.set, key)) {
-                callbackfn.bind(thisArg || this)(this.set[key], this.set[key], this.set);
+                callbackfn.call(
+                    thisArg,
+                    this.set[key],
+                    this.set[key],
+                    this.set
+                );
             }
         }
     }
