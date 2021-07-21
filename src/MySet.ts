@@ -68,7 +68,7 @@ export default class MySet<T = unknown> {
             next() {
                 index += 1;
                 return {
-                    done: index === set.length,
+                    done: index >= set.length,
                     value: set[index]
                 };
             }
@@ -92,7 +92,7 @@ export default class MySet<T = unknown> {
                 index += 1;
                 const value = set[index];
                 return {
-                    done: index === set.length,
+                    done: index >= set.length,
                     value: [value, value]
                 };
             }
