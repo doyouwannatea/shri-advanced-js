@@ -1,14 +1,14 @@
-type MySetType<T> = Record<string | symbol | number, T>;
+type MySetType<T> = T[];
 
 export default class MySet<T = unknown> {
-    private set: MySetType<T> = {} as MySetType<T>;
+    private set: MySetType<T> = [];
 
     constructor(initialValue?: T) {
         if (!initialValue) return;
 
         if (Array.isArray(initialValue)) {
-            for (const value of initialValue) {
-                this.add(value);
+            for (const item of initialValue) {
+                this.add(item);
             }
             return;
         }
@@ -17,51 +17,47 @@ export default class MySet<T = unknown> {
     }
 
     get size(): number {
-        return Object.keys(this.set).length;
+        return this.set.length;
     }
 
     add(value: T): this {
-        const key = this.makeKey(value);
+        if (!this.set.includes(value)) {
+            this.set.push(value);
+        }
 
-        this.set[key] = value;
         return this;
     }
 
     clear(): void {
-        this.set = {} as MySetType<T>;
+        this.set = [];
     }
 
     delete(value: T): boolean {
-        const key = this.makeKey(value);
+        const propIndex = this.set.findIndex(setItem => setItem === value);
 
-        if (Object.prototype.hasOwnProperty.call(this.set, key)) {
-            delete this.set[key];
+        if (propIndex > -1) {
+            this.set = [
+                ...this.set.slice(0, propIndex),
+                ...this.set.slice(propIndex + 1)
+            ];
             return true;
         }
+
         return false;
     }
 
     has(value: T): boolean {
-        const key = this.makeKey(value);
-        return value === this.set[key];
+        return this.set.includes(value);
     }
 
     forEach(callbackfn: (key: T, value: T, set: MySetType<T>) => void, thisArg: unknown = this): void {
-        for (const key in this.set) {
-            if (Object.prototype.hasOwnProperty.call(this.set, key)) {
-                callbackfn.call(
-                    thisArg,
-                    this.set[key],
-                    this.set[key],
-                    this.set
-                );
-            }
+        for (const setItem of this.set) {
+            callbackfn.call(thisArg, setItem, setItem, this.set);
         }
     }
 
     values(): IterableIterator<T> {
         const set = this.set;
-        const keys = Object.getOwnPropertyNames(set);
         let index = -1;
 
         return {
@@ -72,8 +68,8 @@ export default class MySet<T = unknown> {
             next() {
                 index += 1;
                 return {
-                    done: index === keys.length,
-                    value: set[keys[index]]
+                    done: index === set.length,
+                    value: set[index]
                 };
             }
         };
@@ -85,7 +81,6 @@ export default class MySet<T = unknown> {
 
     entries(): IterableIterator<[T, T]> {
         const set = this.set;
-        const keys = Object.getOwnPropertyNames(set);
         let index = -1;
 
         return {
@@ -95,21 +90,13 @@ export default class MySet<T = unknown> {
 
             next() {
                 index += 1;
-                const value = set[keys[index]];
+                const value = set[index];
                 return {
-                    done: index === keys.length,
+                    done: index === set.length,
                     value: [value, value]
                 };
             }
         };
-    }
-
-    private makeKey(value: T): string {
-        if (typeof value === 'object' || typeof value === 'function') {
-            return JSON.stringify(value);
-        }
-
-        return String(value);
     }
 
     get [Symbol.toStringTag](): string {
@@ -117,18 +104,6 @@ export default class MySet<T = unknown> {
     }
 
     [Symbol.iterator](): Iterator<T> {
-        const set = this.set;
-        const keys = Object.getOwnPropertyNames(set);
-        let index = -1;
-
-        return {
-            next() {
-                index += 1;
-                return {
-                    done: index === keys.length,
-                    value: set[keys[index]]
-                };
-            }
-        };
+        return this.values();
     }
 }
