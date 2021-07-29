@@ -1,23 +1,20 @@
 export function allKeysAndSymbols(object: unknown): string[] {
-    const keys = new Set([
-        ...Object.getOwnPropertyNames(object),
-        ...Object.getOwnPropertySymbols(object).map(symbolToString)
-    ]);
+    const keys = new Set<string>();
 
-    const prototype = Object.getPrototypeOf(object);
+    while (object !== null) {
+        const propertyNames = Object.getOwnPropertyNames(object);
+        const propertySymbols = Object.getOwnPropertySymbols(object).map(String);
 
-    if (prototype !== null) {
-        keys.add('prototype');
-        
-        const prototypeKeys = allKeysAndSymbols(prototype);
-        for (const key of prototypeKeys) {
-            keys.add(key);
+        for (const property of propertyNames) {
+            keys.add(property);
         }
+
+        for (const symbol of propertySymbols) {
+            keys.add(symbol);
+        }
+
+        object = Object.getPrototypeOf(object);
     }
 
     return Array.from(keys);
-}
-
-function symbolToString(symbol: symbol): string {
-    return symbol.toString();
 }
